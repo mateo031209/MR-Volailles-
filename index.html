@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MR-Volailles</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f3f8f6;
+      color: #183b35;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0b6b5c, #168aad);
+      color: white;
+      padding: 25px 15px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 32px;
+    }
+
+    nav {
+      background: white;
+      padding: 12px;
+      text-align: center;
+      box-shadow: 0 2px 8px #0002;
+    }
+
+    nav a {
+      color: #0b6b5c;
+      text-decoration: none;
+      margin: 0 12px;
+      font-weight: bold;
+    }
+
+    .accueil {
+      padding: 35px 20px;
+      text-align: center;
+    }
+
+    .accueil h2 {
+      color: #0b6b5c;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .produits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .carte {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 4px 12px #0002;
+    }
+
+    .carte h3 {
+      color: #0b6b5c;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .carte p {
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    .prix {
+      font-size: 20px;
+      font-weight: bold;
+      color: #168aad;
+    }
+
+    .contact {
+      background: #0b6b5c;
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 30px;
+    }
+
+    .contact h2 {
+      margin-bottom: 12px;
+    }
+
+    footer {
+      background: #073b35;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>MR-Volailles</h1>
+  </header>
+
+  <nav>
+    <a href="#accueil">Accueil</a>
+    <a href="#produits">Volailles</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <section class="accueil" id="accueil">
+    <h2>Bienvenue chez MR-Volailles</h2>
+    <p>Découvrez nos volailles disponibles à la vente.</p>
+  </section>
+
+  <section class="produits" id="produits">
+
+    <div class="carte">
+      <h3>Poules</h3>
+      <p>Poules disponibles à la vente.</p>
+      <div class="prix">Prix sur demande</div>
+    </div>
+
+    <div class="carte">
+      <h3>Canards</h3>
+      <p>Canards disponibles à la vente.</p>
+      <div class="prix">Prix sur demande</div>
+    </div>
+
+    <div class="carte">
+      <h3>Dindes</h3>
+      <p>Dindes disponibles à la vente.</p>
+      <div class="prix">Prix sur demande</div>
+    </div>
+
+    <div class="carte">
+      <h3>Autres volailles</h3>
+      <p>Découvrez les volailles actuellement disponibles.</p>
+      <div class="prix">Prix sur demande</div>
+    </div>
+
+  </section>
+
+  <section class="contact" id="contact">
+    <h2>Contact</h2>
+    <p>Pour connaître les disponibilités et les prix, contactez-nous.</p>
+  </section>
+
+  <footer>
+    © 2026 MR-Volailles
+  </footer>
+
+</body>
+</html>
