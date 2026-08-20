@@ -39,8 +39,9 @@
     nav a {
       color: #0b6b5c;
       text-decoration: none;
-      margin: 0 12px;
+      margin: 8px 12px;
       font-weight: bold;
+      display: inline-block;
     }
 
     .accueil {
@@ -83,6 +84,10 @@
       resize: vertical;
     }
 
+    input[type="file"] {
+      background: #f3f8f6;
+    }
+
     button {
       width: 100%;
       padding: 13px;
@@ -97,6 +102,11 @@
 
     button:hover {
       background: #168aad;
+    }
+
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
     }
 
     #message {
@@ -117,7 +127,7 @@
     .carte {
       background: white;
       border-radius: 15px;
-      padding: 25px;
+      padding: 20px;
       text-align: center;
       box-shadow: 0 4px 12px #0002;
     }
@@ -146,7 +156,7 @@
 
     .photo {
       width: 100%;
-      max-height: 220px;
+      height: 220px;
       object-fit: cover;
       border-radius: 10px;
       margin-bottom: 15px;
@@ -176,174 +186,347 @@
 
 <body>
 
-  <header>
-    <h1>MR-Volailles</h1>
-  </header>
+<header>
+  <h1>MR-Volailles</h1>
+</header>
 
-  <nav>
-    <a href="#accueil">Accueil</a>
-    <a href="#produits">Volailles</a>
-    <a href="#ajouter">Ajouter une annonce</a>
-    <a href="#contact">Contact</a>
-  </nav>
+<nav>
+  <a href="#accueil">Accueil</a>
+  <a href="#produits">Volailles</a>
+  <a href="#ajouter">Ajouter une annonce</a>
+  <a href="#contact">Contact</a>
+</nav>
 
-  <section class="accueil" id="accueil">
-    <h2>Bienvenue chez MR-Volailles</h2>
-    <p>Découvrez nos volailles disponibles à la vente.</p>
-  </section>
+<section class="accueil" id="accueil">
+  <h2>Bienvenue chez MR-Volailles</h2>
+  <p>Découvrez nos volailles disponibles à la vente.</p>
+</section>
 
-  <section class="formulaire" id="ajouter">
-    <h2>Ajouter une annonce</h2>
+<section class="formulaire" id="ajouter">
+  <h2>Ajouter une annonce</h2>
 
-    <form id="annonceForm">
-      <input
-        type="text"
-        id="nom"
-        placeholder="Nom de la volaille"
-        required
-      >
+  <form id="annonceForm">
 
-      <textarea
-        id="description"
-        placeholder="Description"
-        required
-      ></textarea>
+    <input
+      type="text"
+      id="nom"
+      placeholder="Nom de la volaille"
+      required
+    >
 
-      <input
-        type="number"
-        id="prix"
-        placeholder="Prix en €"
-        step="0.01"
-        min="0"
-        required
-      >
+    <textarea
+      id="description"
+      placeholder="Description"
+      required
+    ></textarea>
 
-      <input
-        type="text"
-        id="ville"
-        placeholder="Ville"
-        required
-      >
+    <input
+      type="number"
+      id="prix"
+      placeholder="Prix en €"
+      step="0.01"
+      min="0"
+      required
+    >
 
-      <input
-        type="url"
-        id="photo"
-        placeholder="Lien de la photo (facultatif)"
-      >
+    <input
+      type="text"
+      id="ville"
+      placeholder="Ville"
+      required
+    >
 
-      <button type="submit">Publier l'annonce</button>
-    </form>
+    <input
+      type="file"
+      id="photo"
+      accept="image/*"
+    >
 
-    <div id="message"></div>
-  </section>
+    <button type="submit" id="publier">
+      📷 Publier l'annonce
+    </button>
 
-  <section class="produits" id="produits">
-  </section>
+  </form>
 
-  <section class="contact" id="contact">
-    <h2>Contact</h2>
-    <p>Pour connaître les disponibilités et les prix, contactez-nous.</p>
-  </section>
+  <div id="message"></div>
+</section>
 
-  <footer>
-    © 2026 MR-Volailles
-  </footer>
+<section class="produits" id="produits"></section>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<section class="contact" id="contact">
+  <h2>Contact</h2>
+  <p>Pour connaître les disponibilités et les prix, contactez-nous.</p>
+</section>
 
-  <script>
-    const SUPABASE_URL = "https://aqkylstkrscajjqimszc.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_fuTZblrYhvvZkzJjqq0srg_FlxSmNb7";
+<footer>
+  © 2026 MR-Volailles
+</footer>
 
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    const produits = document.getElementById("produits");
-    const formulaire = document.getElementById("annonceForm");
-    const message = document.getElementById("message");
+<script>
 
-    async function afficherAnnonces() {
-      produits.innerHTML = "<p>Chargement des annonces...</p>";
+const SUPABASE_URL =
+  "https://aqkylstkrscajjqimszc.supabase.co";
 
-      const { data, error } = await supabaseClient
-        .from("annonces")
-        .select("*")
-        .order("created_at", { ascending: false });
+const SUPABASE_KEY =
+  "sb_publishable_fuTZblrYhvvZkzJjqq0srg_FlxSmNb7";
 
-      if (error) {
-        produits.innerHTML = "<p>Impossible de charger les annonces.</p>";
-        console.error(error);
-        return;
-      }
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-      if (!data || data.length === 0) {
-        produits.innerHTML = "<p>Aucune annonce pour le moment.</p>";
-        return;
-      }
+const formulaire =
+  document.getElementById("annonceForm");
 
-      produits.innerHTML = "";
+const message =
+  document.getElementById("message");
 
-      data.forEach((annonce) => {
-        const carte = document.createElement("div");
-        carte.className = "carte";
+const produits =
+  document.getElementById("produits");
 
-        carte.innerHTML = `
-          ${
-            annonce.photo
-              ? `<img class="photo" src="${annonce.photo}" alt="${annonce.nom}">`
-              : ""
-          }
+const bouton =
+  document.getElementById("publier");
 
-          <h3>${annonce.nom}</h3>
-          <p>${annonce.description || ""}</p>
 
-          <div class="prix">
-            ${annonce.prix} €
-          </div>
+async function afficherAnnonces() {
 
-          <div class="ville">
-            📍 ${annonce.ville}
-          </div>
-        `;
+  produits.innerHTML =
+    "<p>Chargement des annonces...</p>";
 
-        produits.appendChild(carte);
+  const { data, error } =
+    await supabaseClient
+      .from("annonces")
+      .select("*")
+      .order("created_at", {
+        ascending: false
       });
-    }
 
-    formulaire.addEventListener("submit", async (event) => {
-      event.preventDefault();
+  if (error) {
 
-      message.textContent = "Publication en cours...";
+    console.error(error);
 
-      const nouvelleAnnonce = {
-        nom: document.getElementById("nom").value,
-        description: document.getElementById("description").value,
-        prix: Number(document.getElementById("prix").value),
-        ville: document.getElementById("ville").value,
-        photo: document.getElementById("photo").value || null
-      };
+    produits.innerHTML =
+      "<p>Impossible de charger les annonces.</p>";
 
-      const { error } = await supabaseClient
-        .from("annonces")
-        .insert([nouvelleAnnonce]);
+    return;
+  }
 
-      if (error) {
-        message.textContent = "Erreur lors de la publication.";
-        console.error(error);
-        return;
+  if (!data || data.length === 0) {
+
+    produits.innerHTML =
+      "<p>Aucune annonce pour le moment.</p>";
+
+    return;
+  }
+
+  produits.innerHTML = "";
+
+  data.forEach((annonce) => {
+
+    const carte =
+      document.createElement("div");
+
+    carte.className = "carte";
+
+    carte.innerHTML = `
+
+      ${
+        annonce.photo
+        ? `<img
+            class="photo"
+            src="${annonce.photo}"
+            alt="${annonce.nom}"
+          >`
+        : ""
       }
 
-      message.textContent = "Annonce publiée avec succès !";
+      <h3>${annonce.nom}</h3>
+
+      <p>
+        ${annonce.description || ""}
+      </p>
+
+      <div class="prix">
+        ${annonce.prix} €
+      </div>
+
+      <div class="ville">
+        📍 ${annonce.ville}
+      </div>
+
+    `;
+
+    produits.appendChild(carte);
+
+  });
+}
+
+
+formulaire.addEventListener(
+  "submit",
+  async (event) => {
+
+    event.preventDefault();
+
+    bouton.disabled = true;
+
+    message.textContent =
+      "Publication en cours...";
+
+    try {
+
+      const nom =
+        document.getElementById("nom").value;
+
+      const description =
+        document.getElementById("description").value;
+
+      const prix =
+        Number(
+          document.getElementById("prix").value
+        );
+
+      const ville =
+        document.getElementById("ville").value;
+
+      const fichier =
+        document.getElementById("photo").files[0];
+
+      let urlPhoto = null;
+
+
+      /* ENVOI DE LA PHOTO */
+
+      if (fichier) {
+
+        if (!fichier.type.startsWith("image/")) {
+
+          throw new Error(
+            "Le fichier doit être une image."
+          );
+
+        }
+
+        if (fichier.size > 5 * 1024 * 1024) {
+
+          throw new Error(
+            "La photo doit faire moins de 5 Mo."
+          );
+
+        }
+
+        const extension =
+          fichier.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+        const nomFichier =
+          Date.now() +
+          "-" +
+          Math.random()
+            .toString(36)
+            .substring(2) +
+          "." +
+          extension;
+
+
+        const { error: uploadError } =
+          await supabaseClient.storage
+            .from("photos-annonces")
+            .upload(
+              nomFichier,
+              fichier,
+              {
+                cacheControl: "3600",
+                upsert: false
+              }
+            );
+
+
+        if (uploadError) {
+
+          console.error(uploadError);
+
+          throw new Error(
+            "Impossible d'envoyer la photo."
+          );
+
+        }
+
+
+        const { data: photoData } =
+          supabaseClient.storage
+            .from("photos-annonces")
+            .getPublicUrl(nomFichier);
+
+        urlPhoto =
+          photoData.publicUrl;
+
+      }
+
+
+      /* ENREGISTREMENT DE L'ANNONCE */
+
+      const { error } =
+        await supabaseClient
+          .from("annonces")
+          .insert([
+            {
+              nom: nom,
+              description: description,
+              prix: prix,
+              ville: ville,
+              photo: urlPhoto
+            }
+          ]);
+
+
+      if (error) {
+
+        console.error(error);
+
+        throw new Error(
+          "Impossible d'enregistrer l'annonce."
+        );
+
+      }
+
+
+      message.textContent =
+        "✅ Annonce publiée avec succès !";
 
       formulaire.reset();
 
-      afficherAnnonces();
-    });
+      await afficherAnnonces();
 
-    afficherAnnonces();
-  </script>
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      message.textContent =
+        "❌ " + error.message;
+
+    }
+
+    finally {
+
+      bouton.disabled = false;
+
+    }
+
+  }
+);
+
+
+afficherAnnonces();
+
+</script>
 
 </body>
 </html>
