@@ -235,7 +235,12 @@
       placeholder="Ville"
       required
     >
-
+<input
+  type="email"
+  id="email"
+  placeholder="Ton adresse e-mail"
+  required
+>
     <input
       type="file"
       id="photo"
@@ -391,7 +396,9 @@ formulaire.addEventListener(
 
       const ville =
         document.getElementById("ville").value;
-
+const email =
+  document.getElementById("email").value;
+      
       const fichier =
         document.getElementById("photo").files[0];
 
@@ -475,13 +482,14 @@ formulaire.addEventListener(
         await supabaseClient
           .from("annonces")
           .insert([
-            {
-              nom: nom,
-              description: description,
-              prix: prix,
-              ville: ville,
-              photo: urlPhoto
-            }
+           {
+  nom: nom,
+  description: description,
+  prix: prix,
+  ville: ville,
+  photo: urlPhoto,
+  vendeur_email: email
+             }
           ]);
 
 
