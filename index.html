@@ -332,7 +332,7 @@ async function afficherAnnonces() {
     await supabaseClient
       .from("annonces")
       .select("*")
-      .order("created_at", {
+      .order("id", {
         ascending: false
       });
 
@@ -364,12 +364,12 @@ async function afficherAnnonces() {
     carte.className = "carte";
 
     const photoHTML =
-      annonce.photo
+      annonce.image_url
         ? `
           <img
             class="photo"
-            src="${annonce.photo}"
-            alt="${annonce.nom}"
+            src="${annonce.image_url}"
+            alt="${annonce.titre}"
           >
         `
         : "";
@@ -378,7 +378,7 @@ async function afficherAnnonces() {
 
       ${photoHTML}
 
-      <h3>${annonce.nom}</h3>
+      <h3>${annonce.titre}</h3>
 
       <p>
         ${annonce.description || ""}
@@ -389,15 +389,15 @@ async function afficherAnnonces() {
       </div>
 
       <div class="ville">
-        📍 ${annonce.ville}
+        📍 ${annonce.localisation}
       </div>
 
       ${
-        annonce.vendeur_email
+        annonce.contact
         ? `
           <button
             class="bouton-contact"
-            onclick="contacterVendeur('${encodeURIComponent(annonce.vendeur_email)}')"
+            onclick="contacterVendeur('${encodeURIComponent(annonce.contact)}')"
           >
             📧 Contacter le vendeur
           </button>
@@ -405,12 +405,18 @@ async function afficherAnnonces() {
         : ""
       }
 
-      <button
-        class="bouton-supprimer"
-        onclick="supprimerAnnonce('${annonce.id}', '${encodeURIComponent(annonce.vendeur_email || "")}')"
-      >
-        🗑️ Supprimer l'annonce
-      </button>
+      ${
+        annonce.contact
+        ? `
+          <button
+            class="bouton-supprimer"
+            onclick="supprimerAnnonce('${annonce.id}', '${encodeURIComponent(annonce.contact)}')"
+          >
+            🗑️ Supprimer l'annonce
+          </button>
+        `
+        : ""
+      }
 
     `;
 
@@ -453,15 +459,6 @@ async function supprimerAnnonce(id, emailEncode) {
   const emailAnnonce =
     decodeURIComponent(emailEncode);
 
-  if (!emailAnnonce) {
-
-    alert(
-      "Impossible de supprimer cette annonce."
-    );
-
-    return;
-  }
-
   const email =
     prompt(
       "Entre l'adresse e-mail utilisée pour publier cette annonce :"
@@ -497,7 +494,7 @@ async function supprimerAnnonce(id, emailEncode) {
       .from("annonces")
       .delete()
       .eq("id", id)
-      .eq("vendeur_email", email.trim());
+      .eq("contact", email.trim());
 
   if (error) {
 
@@ -635,19 +632,19 @@ formulaire.addEventListener(
       }
 
 
-      /* ENREGISTREMENT DE L'ANNONCE */
+      /* ENREGISTREMENT DANS SUPABASE */
 
       const { error } =
         await supabaseClient
           .from("annonces")
           .insert([
             {
-              nom: nom,
+              titre: nom,
               description: description,
               prix: prix,
-              ville: ville,
-              photo: urlPhoto,
-              vendeur_email: email
+              localisation: ville,
+              image_url: urlPhoto,
+              contact: email
             }
           ]);
 
@@ -657,7 +654,8 @@ formulaire.addEventListener(
         console.error(error);
 
         throw new Error(
-          "Impossible d'enregistrer l'annonce."
+          "Impossible d'enregistrer l'annonce : " +
+          error.message
         );
 
       }
