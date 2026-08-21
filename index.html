@@ -117,7 +117,7 @@
 
     .produits {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
       padding: 20px;
       max-width: 1100px;
@@ -152,6 +152,7 @@
     .ville {
       margin-top: 10px;
       color: #666;
+      margin-bottom: 15px;
     }
 
     .photo {
@@ -160,6 +161,24 @@
       object-fit: cover;
       border-radius: 10px;
       margin-bottom: 15px;
+    }
+
+    .bouton-contact {
+      background: #168aad;
+      margin-top: 10px;
+    }
+
+    .bouton-contact:hover {
+      background: #0b6b5c;
+    }
+
+    .bouton-supprimer {
+      background: #c0392b;
+      margin-top: 10px;
+    }
+
+    .bouton-supprimer:hover {
+      background: #922b21;
     }
 
     .contact {
@@ -203,6 +222,7 @@
 </section>
 
 <section class="formulaire" id="ajouter">
+
   <h2>Ajouter une annonce</h2>
 
   <form id="annonceForm">
@@ -235,12 +255,14 @@
       placeholder="Ville"
       required
     >
-<input
-  type="email"
-  id="email"
-  placeholder="Ton adresse e-mail"
-  required
->
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Ton adresse e-mail"
+      required
+    >
+
     <input
       type="file"
       id="photo"
@@ -254,13 +276,14 @@
   </form>
 
   <div id="message"></div>
+
 </section>
 
 <section class="produits" id="produits"></section>
 
 <section class="contact" id="contact">
   <h2>Contact</h2>
-  <p>Pour connaître les disponibilités et les prix, contactez-nous.</p>
+  <p>Pour toute question concernant le site, contactez-nous.</p>
 </section>
 
 <footer>
@@ -295,6 +318,10 @@ const produits =
 const bouton =
   document.getElementById("publier");
 
+
+/* ==============================
+   AFFICHER LES ANNONCES
+============================== */
 
 async function afficherAnnonces() {
 
@@ -336,17 +363,20 @@ async function afficherAnnonces() {
 
     carte.className = "carte";
 
-    carte.innerHTML = `
-
-      ${
-        annonce.photo
-        ? `<img
+    const photoHTML =
+      annonce.photo
+        ? `
+          <img
             class="photo"
             src="${annonce.photo}"
             alt="${annonce.nom}"
-          >`
-        : ""
-      }
+          >
+        `
+        : "";
+
+    carte.innerHTML = `
+
+      ${photoHTML}
 
       <h3>${annonce.nom}</h3>
 
@@ -362,6 +392,26 @@ async function afficherAnnonces() {
         📍 ${annonce.ville}
       </div>
 
+      ${
+        annonce.vendeur_email
+        ? `
+          <button
+            class="bouton-contact"
+            onclick="contacterVendeur('${encodeURIComponent(annonce.vendeur_email)}')"
+          >
+            📧 Contacter le vendeur
+          </button>
+        `
+        : ""
+      }
+
+      <button
+        class="bouton-supprimer"
+        onclick="supprimerAnnonce('${annonce.id}', '${encodeURIComponent(annonce.vendeur_email || "")}')"
+      >
+        🗑️ Supprimer l'annonce
+      </button>
+
     `;
 
     produits.appendChild(carte);
@@ -369,6 +419,108 @@ async function afficherAnnonces() {
   });
 }
 
+
+/* ==============================
+   CONTACTER LE VENDEUR
+============================== */
+
+function contacterVendeur(emailEncode) {
+
+  const email =
+    decodeURIComponent(emailEncode);
+
+  const sujet =
+    encodeURIComponent(
+      "MR-Volailles - Votre annonce"
+    );
+
+  const message =
+    encodeURIComponent(
+      "Bonjour, je suis intéressé par votre annonce publiée sur MR-Volailles."
+    );
+
+  window.location.href =
+    `mailto:${email}?subject=${sujet}&body=${message}`;
+}
+
+
+/* ==============================
+   SUPPRIMER UNE ANNONCE
+============================== */
+
+async function supprimerAnnonce(id, emailEncode) {
+
+  const emailAnnonce =
+    decodeURIComponent(emailEncode);
+
+  if (!emailAnnonce) {
+
+    alert(
+      "Impossible de supprimer cette annonce."
+    );
+
+    return;
+  }
+
+  const email =
+    prompt(
+      "Entre l'adresse e-mail utilisée pour publier cette annonce :"
+    );
+
+  if (!email) {
+    return;
+  }
+
+  if (
+    email.trim().toLowerCase() !==
+    emailAnnonce.trim().toLowerCase()
+  ) {
+
+    alert(
+      "❌ L'adresse e-mail ne correspond pas à celle du vendeur."
+    );
+
+    return;
+  }
+
+  const confirmation =
+    confirm(
+      "Es-tu sûr de vouloir supprimer cette annonce ?"
+    );
+
+  if (!confirmation) {
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("annonces")
+      .delete()
+      .eq("id", id)
+      .eq("vendeur_email", email.trim());
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "❌ Impossible de supprimer l'annonce."
+    );
+
+    return;
+  }
+
+  alert(
+    "✅ Annonce supprimée."
+  );
+
+  await afficherAnnonces();
+}
+
+
+/* ==============================
+   PUBLIER UNE ANNONCE
+============================== */
 
 formulaire.addEventListener(
   "submit",
@@ -384,10 +536,10 @@ formulaire.addEventListener(
     try {
 
       const nom =
-        document.getElementById("nom").value;
+        document.getElementById("nom").value.trim();
 
       const description =
-        document.getElementById("description").value;
+        document.getElementById("description").value.trim();
 
       const prix =
         Number(
@@ -395,10 +547,11 @@ formulaire.addEventListener(
         );
 
       const ville =
-        document.getElementById("ville").value;
-const email =
-  document.getElementById("email").value;
-      
+        document.getElementById("ville").value.trim();
+
+      const email =
+        document.getElementById("email").value.trim();
+
       const fichier =
         document.getElementById("photo").files[0];
 
@@ -409,7 +562,9 @@ const email =
 
       if (fichier) {
 
-        if (!fichier.type.startsWith("image/")) {
+        if (
+          !fichier.type.startsWith("image/")
+        ) {
 
           throw new Error(
             "Le fichier doit être une image."
@@ -417,7 +572,10 @@ const email =
 
         }
 
-        if (fichier.size > 5 * 1024 * 1024) {
+        if (
+          fichier.size >
+          5 * 1024 * 1024
+        ) {
 
           throw new Error(
             "La photo doit faire moins de 5 Mo."
@@ -468,11 +626,12 @@ const email =
         const { data: photoData } =
           supabaseClient.storage
             .from("photos-annonces")
-            .getPublicUrl(nomFichier);
+            .getPublicUrl(
+              nomFichier
+            );
 
         urlPhoto =
           photoData.publicUrl;
-
       }
 
 
@@ -482,14 +641,14 @@ const email =
         await supabaseClient
           .from("annonces")
           .insert([
-           {
-  nom: nom,
-  description: description,
-  prix: prix,
-  ville: ville,
-  photo: urlPhoto,
-  vendeur_email: email
-             }
+            {
+              nom: nom,
+              description: description,
+              prix: prix,
+              ville: ville,
+              photo: urlPhoto,
+              vendeur_email: email
+            }
           ]);
 
 
@@ -531,6 +690,10 @@ const email =
   }
 );
 
+
+/* ==============================
+   CHARGEMENT INITIAL
+============================== */
 
 afficherAnnonces();
 
